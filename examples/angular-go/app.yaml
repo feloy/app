@@ -1,0 +1,61 @@
+# yaml-language-server: $schema=../../spec/app-schema.json
+schemaVersion: 0.0.1
+components:
+
+- name: api
+  context: api
+  toolkit:
+    name: go
+    version: "1.18"
+  commands:
+  - name: build
+    commandLine:
+    - go
+    - build
+    - main.go
+    sources:
+    - go.mod
+    - go.sum
+    - main.go
+    - pkg/**
+    artifacts:
+    - main
+  - name: run
+    dependsOn:
+    - command: build
+    commandLine:
+    - ./main
+    expose:
+    - name: api
+      port: 
+        fromFile: /tmp/config/port
+        fromEnv: PORT
+        default: 8081
+
+- name: frontend
+  context: frontend
+  toolkit:
+    name: nodejs
+    version: "16"
+  commands:
+  - name: install
+    commandLine:
+    - npm
+    - install
+    sources:
+    - package.json
+    - package-lock.json
+    artifacts:
+    - node_modules/**
+  - name: run
+    dependsOn:
+    - command: install
+    commandLine:
+    - npm
+    - run
+    - start
+    expose:
+    - name: app
+      port: 
+        default: 4200
+      public: true

@@ -1,0 +1,82 @@
+# yaml-language-server: $schema=../../spec/app-schema.json
+schemaVersion: 0.0.1
+components:
+
+- name: api
+  context: .
+  toolkit:
+    name: go
+    version: "1.18"
+  commands:
+  
+  - name: build
+    commandLine:
+    - go
+    - build
+    - main.go
+    sources:
+    - go.mod
+    - main.go
+    artifacts:
+    - main
+    env:
+    - name: GOPATH
+      value: ${WORKDIR}/.go
+    - name: GOCACHE
+      value: ${WORKDIR}/.cache
+    - name: CGO_ENABLED
+      value: "0"
+  
+  - name: run
+    dependsOn:
+    - command: build
+    commandLine:
+    - ./main
+    expose:
+    - name: api
+      port:
+        fromFile: /tmp/config/port
+        fromEnv: PORT
+        default: 8080
+      host:
+        fromFile: /tmp/config/host
+        fromEnv: HOST
+        default: localhost
+      public: true
+  
+  - name: debug
+    commandLine:
+    - dlv 
+    - --listen=${DEBUG_HOST}:${DEBUG_PORT}
+    - --only-same-user=false
+    - --headless=true
+    - --api-version=2
+    - --accept-multiclient
+    - debug
+    - --continue
+    - main.go
+    sources:
+    - go.mod
+    - main.go
+    env:
+    - name: GOPATH
+      value: ${WORKDIR}/.go
+    - name: GOCACHE
+      value: ${WORKDIR}/.cache
+    expose:
+    - name: api
+      port:
+        fromFile: /tmp/config/port
+        fromEnv: PORT
+        default: 8080
+      public: true
+    - name: api-debug
+      port: 
+        fromFile: /tmp/config/port
+        fromEnv: DEBUG_PORT
+        default: 5858
+      host:
+        fromFile: /tmp/config/debug-host
+        fromEnv: DEBUG_HOST
+        default: localhost
+      debug: true

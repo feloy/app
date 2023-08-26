@@ -1,0 +1,92 @@
+# yaml-language-server: $schema=../../spec/app-schema.json
+schemaVersion: 0.0.1
+components:
+
+- name: api
+  context: api
+  toolkit:
+    name: nodejs
+    version: "16"
+  commands:
+  
+  - name: install
+    commandLine:
+    - npm
+    - install
+    sources:
+    - package.json
+    - package-lock.json
+    artifacts:
+    - node_modules/**
+  
+  - name: run
+    dependsOn:
+    - command: install
+    commandLine:
+    - npm
+    - start
+    expose:
+    - name: api
+      port: 
+        fromFile: /tmp/config/port
+        fromEnv: PORT
+        default: 3000
+    resources:
+      cpu: 500m
+      memory: 1Gi
+
+  - name: debug
+    dependsOn:
+    - command: install
+    commandLine:
+    - npm
+    - run
+    - debug
+    expose:
+    - name: api
+      port: 
+        fromFile: /tmp/config/port
+        fromEnv: PORT
+        default: 3000
+    - name: api-debug
+      port: 
+        fromFile: /tmp/config/debug-port
+        fromEnv: DEBUG_PORT
+        default: 5858
+      debug: true
+    resources:
+      cpu: 500m
+      memory: 1Gi
+
+- name: frontend
+  context: frontend
+  toolkit:
+    name: nodejs
+    version: "16"
+  commands:
+
+  - name: install
+    commandLine:
+    - npm
+    - install
+    sources:
+    - package.json
+    - package-lock.json
+    artifacts:
+    - node_modules/**
+
+  - name: run
+    dependsOn:
+    - command: install
+    commandLine:
+    - npm
+    - run
+    - start
+    expose:
+    - name: app
+      port: 
+        default: 4200
+      public: true
+    resources:
+      cpu: 500m
+      memory: 1Gi

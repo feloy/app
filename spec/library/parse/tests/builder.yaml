@@ -1,0 +1,98 @@
+# yaml-language-server: $schema=../../../app-json-schema.json
+schemaVersion: 3.0.0
+components:
+
+- name: wasm
+  context: wasm
+  toolkit:
+    name: go
+    version: "1.18"
+  commands:
+  - name: build
+    commandLine:
+    - go
+    - build
+    - -o
+    - devfile.wasm
+    env:
+    - name: GOOS
+      value: js
+    - name: GOARCH
+      value: wasm
+    sources:
+    - go.mod
+    - go.sum
+    - main.go
+    - pkg/
+    - vendor/
+    artifacts:
+    - devfile.wasm
+
+- name: frontend
+  context: "."
+  toolkit:
+    name: nodejs
+    version: "16"
+  commands:
+  - name: install
+    commandLine:
+    - npm
+    - install
+    sources:
+    - package.json
+    - package-lock.json
+    artifacts:
+    - node_modules/**
+  - name: installWasm
+    dependsOn:
+    - component: wasm
+      command: build
+    commandLine:
+    - bash
+    - -c
+    - HASH=$(md5sum devfile.wasm | awk '{ print $1 }') && \
+      mv devfile.wasm src/assets/devfile.${HASH}.wasm && \
+      sed -i "s/devfile.[a-z0-9]*.wasm/devfile.${HASH}.wasm/" src/app/app.module.ts
+  - name: run
+    dependsOn:
+    - command: install
+    - command: installWasm
+    sources:
+    - src/
+    - angular.json
+    - tsconfig.app.json
+    - tsconfig.json
+    commandLine:
+    - npm
+    - run
+    - start
+    expose:
+    - name: app
+      port: 
+        fromFile: /tmp/config/port
+        fromEnv: PORT
+        default: 4200
+      public: true
+    resources:
+      cpu: 500m
+      memory: 1Gi
+  - name: deploy
+    dependsOn:
+    - command: install
+    - command: installWasm
+    sources:
+    - src/
+    - angular.json
+    - tsconfig.app.json
+    - tsconfig.json
+    commandLine:
+    - npm
+    - run
+    - build
+    - --
+    - --output-path=./dist
+    artifacts:
+    - dist/
+    resources:
+      cpu: 500m
+      memory: 1Gi

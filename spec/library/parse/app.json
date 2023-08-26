@@ -1,0 +1,250 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "App",
+  "description": "A description of an Application, to be used for building, testing, running, deploying, etc the application",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "components"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "description": "Version of the Schema used for this document",
+      "type": "string"
+    },
+    "components": {
+      "description": "List of Components of the Application",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Component"
+      }
+    }
+  },
+  "definitions": {
+    "Component": {
+      "description": "A Component is a single part of the Application. It can be a micro-service, a module, an executable, etc",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "description": "Name of the Component",
+          "type": "string"
+        },
+        "context": {
+          "description": "Directory containing the sources of the component, relative to the directory containing the App Description. Current directory by default",
+          "type": "string"
+        },
+        "toolkit": {
+          "description": "Description of the Toolkit to be used to build, test, run the Component",
+          "$ref": "#/definitions/ComponentToolkit"
+        },
+        "commands": {
+          "description": "Commands to be used to build, test, run, deploy, etc the Component",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Command"
+          }
+        }
+      }
+    },
+    "ComponentToolkit": {
+      "description": "Description of the Toolkit to be used to build, test, run the Component",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "description": "Name of the Toolkit",
+          "type": "string"
+        },
+        "version": {
+          "description": "Version of the toolkit",
+          "type": "string"
+        }
+      }
+    },
+    "Command": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "commandLine"
+      ],
+      "properties": {
+        "name": {
+          "description": "Name of the command. Either a free name, or one of the pre-defined values 'debug', 'run' or 'deploy'",
+          "type": "string"
+        },
+        "dependsOn": {
+          "description": "List of commands to be executed before this command",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CommandDependsOn"
+          }
+        },
+        "sources": {
+          "description": "List of source files and directories necessary to execute the command. Directories must terminate with '/'",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "commandLine": {
+          "description": "Command to execute",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "env": {
+          "description": "Environment variables to define when running the command",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CommandEnv"
+          }
+        },
+        "artifacts": {
+          "description": "The files created by a short-running command",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "expose": {
+          "description": "The list of ports exposed by a long-running command",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CommandExpose"
+          }
+        },
+        "resources": {
+          "description": "Resources (CPU and Memory) necessary to run this command",
+          "$ref": "#/definitions/CommandResources"
+        }
+      }
+    },
+    "CommandDependsOn": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "command"
+      ],
+      "properties": {
+        "command": {
+          "description": "Name of a command",
+          "type": "string"
+        },
+        "component": {
+          "description": "Name of the component defining the command. By default, the current component",
+          "type": "string"
+        }
+      }
+    },
+    "CommandExpose": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "port"
+      ],
+      "properties": {
+        "name": {
+          "description": "Name of the port",
+          "type": "string"
+        },
+        "port": {
+          "description": "Number of the Port",
+          "$ref": "#/definitions/CommandExposePort"
+        },
+        "host": {
+          "description": "Host on which the port is bound. Default value is the 'localhost' value",
+          "$ref": "#/definitions/CommandExposeHost"
+        },
+        "debug": {
+          "description": "If the port is used by the debugger, false by default",
+          "type": "boolean"
+        },
+        "public": {
+          "description": "If the port is accessible by the end-users, false by default",
+          "type": "boolean"
+        }
+      }
+    },
+    "CommandExposePort": {
+      "description": "Definition of a Port number. The number can be obtained from, in this order, a configuration file, an environment variable or a constant value",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "fromFile": {
+          "description": "The configuration file containing the port number",
+          "type": "string"
+        },
+        "fromEnv": {
+          "description": "The environment variable containing the port number",
+          "type": "string"
+        },
+        "default": {
+          "description": "The port number, if none of fromFile and fromEnv are defined",
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "CommandExposeHost": {
+      "description": "Definition of a Host. The host can be obtained from, in this order, a configuration file, an environment variable or a constant value",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "fromFile": {
+          "description": "The configuration file containing the host name",
+          "type": "string"
+        },
+        "fromEnv": {
+          "description": "The environment variable containing the host name",
+          "type": "string"
+        },
+        "default": {
+          "description": "The host name, if none of fromFile and fromEnv are defined",
+          "type": "string"
+        }
+      }
+    },
+    "CommandResources": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "cpu": {
+          "description": "CPU necessary to run the command",
+          "type": "string"
+        },
+        "memory": {
+          "description": "Memory necessary to run the command",
+          "type": "string"
+        }
+      }
+    },
+    "CommandEnv": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "value"
+      ],
+      "properties": {
+        "name": {
+          "description": "Name of the environment variable",
+          "type": "string"
+        },
+        "value": {
+          "description": "Value of the environment variable",
+          "type": "string"
+        }
+      }
+    }
+  }
+}
