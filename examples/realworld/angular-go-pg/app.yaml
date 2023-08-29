@@ -1,0 +1,70 @@
+# yaml-language-server: $schema=../../../spec/app-schema.json
+schemaVersion: 0.0.1
+components:
+  - name: api
+    context: api
+    toolkit:
+      name: go
+      version: "1.17"
+    commands:
+      - name: run
+        sources:
+          - Makefile
+          - go.mod
+          - go.sum
+          - main.go
+          - conduit/
+          - mock/
+          - postgres/
+          - server/
+        commandLine:
+          - make
+          - run
+        expose:
+          - name: api
+            port:
+              fromEnv: PORT
+    services:
+      - name: database
+        connection:
+          fromEnv: POSTGRESQL_URL
+
+  - name: front
+    context: front
+    toolkit:
+      name: nodejs
+      version: "18"
+    commands:
+      - name: install
+        sources:
+          - package.json
+          - package-lock.json
+        commandLine:
+          - npm
+          - install
+        artifacts:
+          - node_modules/
+      - name: run
+        dependsOn:
+          - command: install
+        sources:
+          - package.json
+          - package-lock.json
+          - src/
+          - angular.json
+          - tsconfig.app.json
+          - tsconfig.json
+        commandLine:
+          - npm
+          - start
+        expose:
+          - name: app
+            port: 
+              default: 4200
+            public: true
+
+services:
+  - name: database
+    compatible:
+      - name: postgresql
+        version: "14"
