@@ -15,6 +15,11 @@ properties:
     type: array
     items:
       $ref: "#/definitions/Component"
+  services:
+    description: List of Services accessed by Components
+    type: array
+    items:
+      $ref: "#/definitions/Service"
 definitions:
   Component:
     description: A Component is a single part of the Application. It can be a micro-service, a module, an executable, etc
@@ -37,6 +42,11 @@ definitions:
         type: array
         items:
           $ref: "#/definitions/Command"
+      services:
+        description: Services accessed by the Component
+        type: array
+        items:
+          $ref: "#/definitions/ComponentService"
   ComponentToolkit:
     description: Description of the Toolkit to be used to build, test, run the Component
     type: object
@@ -117,44 +127,44 @@ definitions:
         type: string
       port:
         description: Number of the Port
-        $ref: "#/definitions/CommandExposePort"
+        $ref: "#/definitions/NumberFromConfiguration"
       host:
         description: Host on which the port is bound. Default value is the 'localhost' value
-        $ref: "#/definitions/CommandExposeHost"
+        $ref: "#/definitions/StringFromConfiguration"
       debug:
         description: If the port is used by the debugger, false by default
         type: boolean
       public:
         description: If the port is accessible by the end-users, false by default
         type: boolean
-  CommandExposePort:
-    description: Definition of a Port number. The number can be obtained from, in this order, a configuration file, an environment variable or a constant value
+  NumberFromConfiguration:
+    description: Definition of a number. The number can be obtained from, in this order, a configuration file, an environment variable or a constant value
     type: object
     additionalProperties: false
     properties:
       fromFile:
-        description: The configuration file containing the port number
+        description: The configuration file containing the number
         type: string
       fromEnv:
-        description: The environment variable containing the port number
+        description: The environment variable containing the number
         type: string
       default:
-        description: The port number, if none of fromFile and fromEnv are defined
+        description: The number, if none of fromFile and fromEnv are defined
         type: integer
         format: int32
-  CommandExposeHost:
-    description: Definition of a Host. The host can be obtained from, in this order, a configuration file, an environment variable or a constant value
+  StringFromConfiguration:
+    description: Definition of a string. The string can be obtained from, in this order, a configuration file, an environment variable or a constant value
     type: object
     additionalProperties: false
     properties:
       fromFile:
-        description: The configuration file containing the host name
+        description: The configuration file containing the string
         type: string
       fromEnv:
-        description: The environment variable containing the host name
+        description: The environment variable containing the string
         type: string
       default:
-        description: The host name, if none of fromFile and fromEnv are defined
+        description: The string, if none of fromFile and fromEnv are defined
         type: string
   CommandResources:
     type: object
@@ -178,4 +188,42 @@ definitions:
         type: string
       value:
         description: Value of the environment variable
+        type: string
+  ComponentService:
+    type: object
+    additionalProperties: false
+    required:
+    - name
+    properties:
+      name:
+        description: Name of the service accessed
+        type: string
+      connection:
+        description: Connection string to connect to the service, if necessary
+        $ref: "#/definitions/StringFromConfiguration"
+  Service:
+    type: object
+    additionalProperties: false
+    required:
+    - name
+    - compatible
+    properties:
+      name:
+        description: Name of the Service
+        type: string
+      compatible:
+        description: List of compatible products for providing the Service
+        type: array
+        $ref: "#/definitions/Product"
+  Product:
+    type: object
+    additionalProperties: false
+    required:
+    - name
+    properties:
+      name:
+        description: Name of the Product
+        type: string
+      version:
+        description: Version of the product
         type: string
