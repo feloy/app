@@ -7,7 +7,18 @@ components:
       name: go
       version: "1.17"
     commands:
+      - name: dependencies
+        sources:
+          - go.mod
+          - go.sum
+        commandLine:
+          - go
+          - mod
+          - download
+        
       - name: run
+        dependsOn:
+          - command: dependencies
         sources:
           - Makefile
           - go.mod
@@ -24,6 +35,7 @@ components:
           - name: api
             port:
               fromEnv: PORT
+            public: true
     services:
       - name: database
         connection:
