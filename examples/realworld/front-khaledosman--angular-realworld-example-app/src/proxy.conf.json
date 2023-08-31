@@ -1,0 +1,6 @@
+{
+  "/api/v1": {
+    "target": "http://api:8585",
+    "secure": false
+  }
+}
