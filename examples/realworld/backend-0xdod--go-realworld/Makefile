@@ -1,4 +1,4 @@
-POSTGRESQL_URL="postgres://realworld:pwd@localhost:5432/realworld?sslmode=disable"
+#POSTGRESQL_URL="postgres://realworld:pwd@localhost:5432/realworld?sslmode=disable"
 
 run:
 	go run main.go

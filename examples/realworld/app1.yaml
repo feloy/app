@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=../../../spec/app-schema.json
+# yaml-language-server: $schema=../../spec/app-schema.json
 schemaVersion: 0.0.1
 components:
   - name: api
@@ -7,18 +7,8 @@ components:
       name: go
       version: "1.17"
     commands:
-      - name: dependencies
-        sources:
-          - go.mod
-          - go.sum
-        commandLine:
-          - go
-          - mod
-          - download
         
       - name: run
-        dependsOn:
-          - command: dependencies
         sources:
           - Makefile
           - go.mod
