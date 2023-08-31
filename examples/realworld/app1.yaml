@@ -2,7 +2,7 @@
 schemaVersion: 0.0.1
 components:
   - name: api
-    context: api
+    context: backend-0xdod--go-realworld
     toolkit:
       name: go
       version: "1.17"
@@ -42,7 +42,7 @@ components:
           fromEnv: POSTGRESQL_URL
 
   - name: front
-    context: front
+    context: front-AndyT2503--angular-conduit-signals
     toolkit:
       name: nodejs
       version: "18"
