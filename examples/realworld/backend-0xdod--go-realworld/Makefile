@@ -1,5 +1,8 @@
 #POSTGRESQL_URL="postgres://realworld:pwd@localhost:5432/realworld?sslmode=disable"
 
+build:
+	go build -o main .
+
 run:
 	go run main.go
 

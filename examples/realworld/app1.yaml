@@ -8,7 +8,7 @@ components:
       version: "1.17"
     commands:
         
-      - name: run
+      - name: build
         sources:
           - Makefile
           - go.mod
@@ -20,12 +20,37 @@ components:
           - server/
         commandLine:
           - make
-          - run
+          - build
+        artifacts:
+          - ./main
+
+      - name: run
+        dependsOn:
+          - command: build
+        commandLine:
+          - ./main
         expose:
           - name: api
             port:
               fromEnv: PORT
             public: true
+    services:
+      - name: database
+        connection:
+          fromEnv: POSTGRESQL_URL
+
+  - name: migrate
+    context: backend-0xdod--go-realworld
+    toolkit:
+      name: migrate
+    commands:
+      - name: run
+        sources:
+        - postgres/migrations/
+        commandLine:
+          - sh
+          - -c
+          - "migrate -database ${POSTGRESQL_URL} -path postgres/migrations up"          
     services:
       - name: database
         connection:

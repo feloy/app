@@ -8,7 +8,7 @@ components:
       version: "1.17"
     commands:
         
-      - name: run
+      - name: build
         sources:
           - Makefile
           - go.mod
@@ -25,7 +25,15 @@ components:
           - utils
         commandLine:
           - make
-          - run
+          - build
+        artifacts:
+          - ./golang-echo-realworld-example-app
+
+      - name: run
+        dependsOn:
+          - command: build
+        commandLine:
+          - ./golang-echo-realworld-example-app
         expose:
           - name: api
             port:
